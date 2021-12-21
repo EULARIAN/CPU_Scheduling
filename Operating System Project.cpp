@@ -49,6 +49,53 @@ int sjf_none(int n,int waiting_time[], int burst_time[]){
 	  return average_waiting_time2;
 }
 
+int round_robin_scheduling(int n,int waiting_time[],int burst_time[],int time_quantum){
+	bool result;
+	int remaining_time[n];
+	int t = 0,total_waiting_time= 0,average_waiting_time3;
+	
+	cout<<"\nScheduling Method: Round Robin Scheduling - time_quatum = 2"
+	       "\n Process Waiting Times: ";
+	       
+	for(int i = 0; i<n; i++)
+	   remaining_time[i] = burst_time[i];
+	   
+	while(1){
+		result = true;
+		for(int i = 0; i <n; i++){
+			cout<<"\n\tP"<<i+1<<": ";
+			if(remaining_time[i] > 0){
+				result = false;
+			if(remaining_time[i] > time_quantum){
+				remaining_time[i]= burst_time[i] - time_quantum;
+				t += time_quantum;
+				cout<<t<<" ms";
+				
+				remaining_time[i] -= time_quantum;
+				
+			}
+			else{
+			    t += remaining_time[i];
+				waiting_time[i] = t - burst_time[i];
+				cout<<waiting_time[i]<<" ms";
+				remaining_time[i] = 0;	
+			}
+		}
+	} 
+	
+	if(result == true)
+	   break;
+    }
+	  
+	  //Calculating average waiting time
+	  for(int i = 0; i < n; i++){
+	  	total_waiting_time += waiting_time[i];
+	  }
+	  
+	  average_waiting_time3 = (double)(1.0 * total_waiting_time)/ (double)(1.0 * n);
+	  return average_waiting_time3;
+}
+
 
 int main (void){
 	
@@ -56,8 +103,9 @@ int main (void){
 	int arrival_time[] = {0,0};
 	int priority[] = {0,0};
 	int waiting_time[] = {0};
+	int time_quantum = 2;
 	int size = sizeof burst_time / sizeof burst_time[0];
-	double awt,awt2;
+	double awt,awt2,awt3;
 	
 	for(int i = 0; i <size ; i++){
 		cout<<"\n\t\t"<<burst_time[i]<<":"<<arrival_time[i]<<":"<<priority[i];
@@ -80,8 +128,11 @@ int main (void){
 	  	awt = firstcome_firstserve(size,waiting_time,burst_time); 
 	  	cout<<"\n\tAverage Waiting Time: "<<awt<<" ms";
 	  	
-	  	awt = sjf_none(size,waiting_time,burst_time);
+	  	awt2 = sjf_none(size,waiting_time,burst_time);
 	  	cout<<"\n\tAverage Waiting Time: "<<awt2<<" ms";
+	  	
+	  	awt3 = round_robin_scheduling(size,waiting_time,burst_time, time_quantum);
+	  	cout<<"\n\tAverage Waiting Time: "<<awt3<<" ms";
 	  	
 	  }
 	  
