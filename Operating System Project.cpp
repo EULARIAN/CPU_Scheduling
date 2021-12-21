@@ -67,12 +67,9 @@ int round_robin_scheduling(int n,int waiting_time[],int burst_time[],int time_qu
 			if(remaining_time[i] > 0){
 				result = false;
 			if(remaining_time[i] > time_quantum){
-				remaining_time[i]= burst_time[i] - time_quantum;
 				t += time_quantum;
-				cout<<t<<" ms";
-				
 				remaining_time[i] -= time_quantum;
-				
+				cout<<remaining_time[i]<<" ms";
 			}
 			else{
 			    t += remaining_time[i];
