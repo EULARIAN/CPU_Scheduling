@@ -1,13 +1,29 @@
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include <iostream>
+
 using namespace std;
+//#include<stdio.h>
 
 /* A Linked list node */
 struct Node {
 	int burst_time;
 	int arrival_time;
 	int priority;
+	int wt;
 	struct Node* next;
 };
+
+int getCount(Node* head) 
+{ 
+    int count = 0; // Initialize count 
+    Node* current = head; // Initialize current 
+    while (current != NULL) 
+    { 
+        count++; 
+        current = current->next; 
+    } 
+    return count; 
+} 
 
 int firstcome_firstserve(struct Node *head, int n, int waitingTime){
 	 
@@ -19,14 +35,15 @@ int firstcome_firstserve(struct Node *head, int n, int waitingTime){
 	      "\n   Process Waiting Times:";
 	      
 	  //Calculating waiting time     
-	for(int y = 0; y < 2; y++){
-	     
-	     waitingTime = waitingTime + temp->burst_time;
+	for(int y = 0; y < n; y++){
 	     cout<<"\n\tP"<<y+1<<": "<<waitingTime<<" ms";
-	     temp = temp->next;
+	     waitingTime +=  temp->burst_time;
 	     total_waiting_time += waitingTime;
+	     temp = temp->next;
+	     //total_waiting_time += waitingTime;
 	     
      };
+     
      
      //Calculating average waiting time
      average_waiting_time =  (double)(1.0*total_waiting_time)/(double) (1.0 * n) ;
@@ -35,17 +52,17 @@ int firstcome_firstserve(struct Node *head, int n, int waitingTime){
 };
 // function to find the sum of
 // nodes of the given linked list
-int sumOfNodes(struct Node* head)
+int sjf_none(struct Node* head, int n,int waitingTime)
 {
 	struct Node* ptr = head;
-	int sum = 0, n = 3;
+	int sum = 0;
 	struct Node* *h;
-	int waitingTime = 0;;
+	//int waitingTime = 0;;
 	 Node* cur1 = head;
      Node* cur2 = head;
      int total_waiting_time = 0, average_waiting_time;
      
-     	cout<<"\nScheduling Method: Round Robin Scheduling - time_quatum = 2"
+     	cout<<"\nScheduling Method: Shortest Job First(None)"
 	       "\n Process Waiting Times: ";
 	 //bubble sort
 	
@@ -68,23 +85,17 @@ int sumOfNodes(struct Node* head)
         
 	} 
   
-	 for(int i = 0; i< n - 1; i++){
-	 	//while(ptr != NULL){
-	 	
-	 	waitingTime += ptr->burst_time;
+	 for(int i = 0; i< n ; i++){
 	 	cout<<"\n\tP"<<i+1<<": "<<waitingTime<<" ms";
+	 	waitingTime += ptr->burst_time;
+	 	total_waiting_time += ptr->burst_time;
 	 	ptr = ptr->next;
-	 	total_waiting_time += waitingTime;
-    
-	// }
-	 
+	 	//total_waiting_time += waitingTime; 
 }
 	  cout<<"\nTotal Waiting Time: "<< total_waiting_time;
 	  //Calculating average waiting time
 	  average_waiting_time = (double)(1.0 *total_waiting_time) /(double)(1.0 * n);
 	  return average_waiting_time;
-
-	//return sum;
 }
 
 int priority_none(struct Node *head, int waitingTime , int n){
@@ -118,10 +129,11 @@ int priority_none(struct Node *head, int waitingTime , int n){
          }     
 	} 
    cout<<"\nSorted list:";
-	for(int i = 0; i< 3; i++){
+   cout<<"\nProcesses\tPriority\tWaiting Time";
+	for(int i = 0; i< n; i++){
 	
-	  cout<<"\n"<<use->priority;
-	  cout<<"\t"<<use->burst_time;
+	  cout<<"\nP"<<i+1<<": "<<"\t\t"<<use->priority;
+	  cout<<"\t\t"<<use->burst_time<<"ms";
 	  waitingTime = waitingTime + use->burst_time;
 	  use = use->next;
 	  total_waiting_time += waitingTime;
@@ -137,55 +149,54 @@ int priority_none(struct Node *head, int waitingTime , int n){
 
 }
 
-
-int round_robin_scheduling(struct Node *head, int n,int waitingTime, int time_quantum){
-	bool result;
-	int remaining_time;
-	int t = 0,total_waiting_time= 0,average_waiting_time3;
+ // Working on it
+int round_robin_scheduling(struct Node *head, int waitingTime, int n, int time_quantum){
 	
-	Node* pot = head;//int waiting_time[] = {0};
-	
-	cout<<"\nScheduling Method: Round Robin Scheduling - time_quatum = 2"
-	       "\n Process Waiting Times: ";
-	       
-	for(int i = 0; i<n; i++)
-	   remaining_time = pot->burst_time;
-	   
-	while(1){
-		result = true;
-		for(int i = 0; i <n; i++){
-			cout<<"\n\tP"<<i+1<<": ";
-			if(remaining_time > 0){
-				result = false;
-			if(remaining_time > time_quantum){
-				
-				t += time_quantum;
-				//remaining_time[i] -= time_quantum;
-				remaining_time = remaining_time - time_quantum;
-				cout<<t<<" ms";
-			}
-				
-			else{
-			    t += remaining_time;
-				waitingTime = t - pot->burst_time;
-				pot = pot->next;
-				//cout<<t<<" ms";
-				remaining_time = 0;	
-			}
-		}
+	Node* pal = head;
+	int remainingTime[n];
+	int total_waiting_time = 0, average_waiting_time;
+	pal->wt = 0;
+		int rem_bt[n]; 
+	for (int i = 0 ; i < n ; i++) 
+		remainingTime[i] = pal->burst_time; 
+	int t = 0; 
+     
+     	cout<<"\nScheduling Method: Round Robin Scheduling - None-Preemptive"
+	       "\n Process Waiting Times:";
+	while (1) 
+	{ 
+		bool done = true; 
+		for (int i = 0 ; i < n; i++) 
+		{ 
+			if (remainingTime[i] > 0) 
+			{ 
+				done = false; 
+				if (remainingTime[i] > time_quantum) 
+				{ 
+					t += time_quantum; 
+					remainingTime[i] -= time_quantum; 
+				} 
+				else
+				{ 
+					t = t + remainingTime[i]; 
+					pal->wt = t - pal->burst_time; 
+					remainingTime[i] = 0; 
+					pal->next;
+				} 
+			} 
+		} 
+		if (done == true) 
+		break; 
 	} 
 	
-	if(result == true)
-	   break;
-    }
-	  
-	  //Calculating average waiting time
-	  for(int i = 0; i < n; i++){
-	  	total_waiting_time += waitingTime;
-	  }
-	  
-	  average_waiting_time3 = (double)(1.0 * total_waiting_time)/ (double)(1.0 * n);
-	  return average_waiting_time3;
+	for (int i=0; i<n; i++) 
+	{  
+		total_waiting_time += pal->wt;
+		cout << "\n\tP" << i+1 << ": "<< pal->wt <<" ms"; 
+	} 
+	
+	 average_waiting_time =  (float)total_waiting_time / (float)n; 
+	return average_waiting_time;
 }
 
 
@@ -249,17 +260,6 @@ void PrintList(struct Node *head){
 	}
    }
  
- int getCount(Node* head) 
-{ 
-    int count = 0; 
-    Node* current = head; 
-    while (current != NULL) 
-    { 
-        count++; 
-        current = current->next; 
-    } 
-    return count; 
-} 
 
 // Driver program to test above
 int main (void){
@@ -267,35 +267,27 @@ int main (void){
 	double awt,awt2,awt3,awt4;
 	int size;
 	int waitingTime = 0;
-	int time_quantum = 2;
-	
-	
-	
+	int time_quantum = 2;			
 	char choice;
 	int n;
 		
-   	Node *head = new Node();
-   	size = getCount(head);
+   	//Node *head = new Node();
+   	Node* head = NULL;
    	
-	
 	//for(int i = 0; i<n; i++){
 	while(true){
-	cout<<"\nPress any character to end: ";
+	cout<<"\nPress any character to continue or 'q' to quit: ";
 	cin>>choice;
-		if(choice == 'q')
+	
+	if(choice == 'q')
 	   break;
 	   
 	push_back(&head);
-		PrintList(head);
-	
+	PrintList(head);
+	size = getCount(head);
   }
     
     cout<<"Count of nodes is "<<size; 
-	
-	/*for(int i = 0; i <size ; i++){
-		cout<<"\n\t\t"<<burst_time[i]<<":"<<arrival_time[i]<<":"<<priority[i];
-	}*/
-	
 	
     int x;
 
@@ -313,11 +305,10 @@ int main (void){
 	  	awt = firstcome_firstserve(head, size, waitingTime); 
 	  	cout<<"\n\tAverage Waiting Time: "<<awt<<" ms";
 	  	
-	  	//awt2 = sjf_none(head, waitingTime, size);
-	  		  //	cout<<"\n\tAverage Waiting Time: "<<awt2<<" ms";
-	  	//awt2 = sumofNodes(head);
-	  	cout<<"\n\tAverage Waiting Time: "<<sumOfNodes(head)<<" ms";
-	  	awt3 = round_robin_scheduling(head,size, waitingTime,time_quantum);
+    	awt2 = sjf_none(head,size,waitingTime);
+	  	cout<<"\n\tAverage Waiting Time: "<<awt2<<" ms";
+	  	
+	  	awt3 = round_robin_scheduling(head,waitingTime,size,time_quantum);
 	  	cout<<"\n\tAverage Waiting Time: "<<awt3<<" ms";
 	  		
 	  	awt4 = priority_none(head,waitingTime, size);
